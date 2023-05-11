@@ -1,12 +1,21 @@
 package co.edu.manizales.listdeleds.model;
+import lombok.Data;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
+ @Data
 public class ListDE {
     private Node head;
+    private Node tail;
+    private int size;
+    private List<Led>leds = new ArrayList<>();
 
     public void addLedToEnd(Led led) {
         Node newNode = new Node();
-        newNode.setLed(led);
+        newNode.setData(led);
 
         if (head == null) {
             head = newNode;
@@ -20,9 +29,37 @@ public class ListDE {
         }
     }
 
+    public void addLed(Led led) {
+        Node newNode = new Node();
+
+        if (head == null) {
+            // Lista vacía, el nuevo nodo se convierte en la cabeza y la cola
+            head = newNode;
+            tail = newNode;
+        } else {
+            // Agregar el nuevo nodo al final de la lista
+            tail.setNext(newNode);
+            newNode.setPrev(tail);
+            tail = newNode;
+        }
+
+        size++;
+    }
+
+     public List<Led> getAllLEDs() {
+         List<Led> leds = new ArrayList<>();
+         Node current = head;
+
+         while (current != null) {
+             leds.add(current.getData());
+             current = current.getNext();
+         }
+
+         return leds;
+     }
     public void addLedToStart(Led led) {
         Node newNode = new Node();
-        newNode.setLed(led);
+        newNode.setData(led);
 
         if (head == null) {
             head = newNode;
@@ -36,10 +73,12 @@ public class ListDE {
     public void resetList() {
         Node current = head;
         while (current != null) {
-            current.getLed().setState(false);
+            current.getData().setState(false);
             current = current.getNext();
         }
     }
+
+
     public void lightUpMiddleLeds() throws InterruptedException {
         int size = getSize();
         if (size == 0) {
@@ -74,33 +113,33 @@ public class ListDE {
 
         while (startNode != null && endNode != null) {
             // Encender LED y establecer hora de encendido
-            startNode.getLed().setState(true);
-            startNode.getLed().setDateOn(getCurrentTime());
+            startNode.getData().setState(true);
+            startNode.getData().setDateOn(getCurrentTime());
 
             // Esperar 1 segundo
             Thread.sleep(1000);
 
             // Apagar LED y mantener la hora de apagado anterior
-            startNode.getLed().setState(false);
+            startNode.getData().setState(false);
 
             // Encender LED y establecer hora de encendido
-            endNode.getLed().setState(true);
-            endNode.getLed().setDateOn(getCurrentTime());
+            endNode.getData().setState(true);
+            endNode.getData().setDateOn(getCurrentTime());
 
             // Esperar 1 segundo
             Thread.sleep(1000);
 
             // Apagar LED y mantener la hora de apagado anterior
-            endNode.getLed().setState(false);
+            endNode.getData().setState(false);
 
             if (startNode.getNext() == null) {
                 // Es el último nodo de la lista, mantener encendido
-                startNode.getLed().setState(true);
+                startNode.getData().setState(true);
             }
 
             if (endNode.getNext() == null) {
                 // Es el último nodo de la lista, mantener encendido
-                endNode.getLed().setState(true);
+                endNode.getData().setState(true);
             }
 
             startNode = startNode.getNext();
@@ -110,8 +149,8 @@ public class ListDE {
     private void resetLedTimes() {
         Node current = head;
         while (current != null) {
-            current.getLed().setDateOn(null);
-            current.getLed().setDateOff(null);
+            current.getData().setDateOn(null);
+            current.getData().setDateOff(null);
             current = current.getNext();
         }
     }

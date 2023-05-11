@@ -1,5 +1,6 @@
 package co.edu.manizales.listdeleds.controller;
 
+import co.edu.manizales.listdeleds.controller.dto.ResponseDTO;
 import co.edu.manizales.listdeleds.model.Led;
 import co.edu.manizales.listdeleds.model.ListDE;
 import co.edu.manizales.listdeleds.service.ListDEService;
@@ -16,36 +17,42 @@ public class ListDEController {
         this.listDEService = listDEService;
     }
     @PostMapping
-    public ResponseEntity<String> addLED(@RequestBody Led led) {
-        listDEService.addLed(led);
-        return ResponseEntity.ok("LED added successfully");
+    public ResponseEntity<ResponseDTO> addLED(@RequestBody Led led) {
+        listDEService.getLeds().addLed(led);
+        return new ResponseEntity<>(new ResponseDTO(200,"Se ha añadido el led", null),HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<ResponseDTO> getAllLEDs() {
+        return new ResponseEntity<>(new ResponseDTO(
+                200, listDEService.getLeds(), null), HttpStatus.OK);
     }
 
     @PostMapping("/start")
     public ResponseEntity<String> addLEDToStart(@RequestBody Led led) {
-        listDEService.addLedToStart(led);
-        return ResponseEntity.ok("LED added to the start successfully");
+        listDEService.getLeds().addLedToStart(led);
+        return ResponseEntity.ok("LED añadido al inicio");
     }
 
     @PostMapping("/end")
     public ResponseEntity<String> addLEDToEnd(@RequestBody Led led) {
-        listDEService.addLedToEnd(led);
-        return ResponseEntity.ok("LED added to the end successfully");
+        listDEService.getLeds().addLedToEnd(led);
+        return ResponseEntity.ok("LED añadido al final");
     }
 
     @GetMapping ("/reset")
     public ResponseEntity<String> resetList() {
-        listDEService.resetList();
-        return ResponseEntity.ok("List reset successfully");
+        listDEService.getLeds().resetList();
+        return ResponseEntity.ok("Lista reseteada");
     }
 
     @GetMapping("/lightup")
     public ResponseEntity<String> lightUpMiddleLeds() {
         try {
-            listDEService.lightUpMiddleLeds();
-            return ResponseEntity.ok("LEDs lighted up successfully");
+            listDEService.getLeds().lightUpMiddleLeds();
+            return ResponseEntity.ok("Los leds se prendieron");
         } catch (InterruptedException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred while lighting up LEDs");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error al encender los LED");
         }
     }
 }

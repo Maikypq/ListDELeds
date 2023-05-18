@@ -1,58 +1,67 @@
 package co.edu.manizales.listdeleds.controller;
 
+import co.edu.manizales.listdeleds.controller.dto.LedDTO;
 import co.edu.manizales.listdeleds.controller.dto.ResponseDTO;
+import co.edu.manizales.listdeleds.exception.ListDEException;
 import co.edu.manizales.listdeleds.model.Led;
-import co.edu.manizales.listdeleds.model.ListDE;
 import co.edu.manizales.listdeleds.service.ListDEService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/leds")
-public class ListDEController {
-    private final ListDEService listDEService;
 
-    public ListDEController(ListDEService listDEService) {
-        this.listDEService = listDEService;
-    }
-    @PostMapping
-    public ResponseEntity<ResponseDTO> addLED(@RequestBody Led led) {
-        listDEService.getLeds().addLed(led);
-        return new ResponseEntity<>(new ResponseDTO(200,"Se ha añadido el led", null),HttpStatus.OK);
-    }
+@RestController
+@RequestMapping(path = "/leds")
+public class ListDEController {
+    @Autowired
+    private ListDEService listDEService;
+
 
     @GetMapping
-    public ResponseEntity<ResponseDTO> getAllLEDs() {
+    public ResponseEntity<ResponseDTO> getLeds() {
         return new ResponseEntity<>(new ResponseDTO(
-                200, listDEService.getLeds(), null), HttpStatus.OK);
+                200, listDEService.getLeds().print(), null), HttpStatus.OK);
     }
 
-    @PostMapping("/start")
-    public ResponseEntity<String> addLEDToStart(@RequestBody Led led) {
+    @PostMapping
+    public ResponseEntity<ResponseDTO> addLed(@RequestBody LedDTO ledDTO) throws ListDEException {
+        Led newLed = new Led(ledDTO.getIdentification() , false);
+        listDEService.getLeds().addLed(newLed);
+        return new ResponseEntity<>(new ResponseDTO(200, "la bombilla fue añadida", null), HttpStatus.OK);
+    }
+    @PostMapping(path = "/add/{id}")
+    public ResponseEntity<ResponseDTO> addLedToEnd(@PathVariable int id){
+
+        listDEService.getLeds().addLedToEnd(new Led(id,false));
+        return new ResponseEntity<>(new ResponseDTO(
+                200, "la bombilla fue añadida", null), HttpStatus.OK);
+
+    }
+
+
+    @GetMapping(path = "/addtostart")
+    public ResponseEntity<ResponseDTO> addToStart(@RequestBody Led led){
+
         listDEService.getLeds().addLedToStart(led);
-        return ResponseEntity.ok("LED añadido al inicio");
+        return new ResponseEntity<>(new ResponseDTO(
+                200, "la bombilla fue añadida al inicio", null), HttpStatus.OK);
+
     }
 
-    @PostMapping("/end")
-    public ResponseEntity<String> addLEDToEnd(@RequestBody Led led) {
-        listDEService.getLeds().addLedToEnd(led);
-        return ResponseEntity.ok("LED añadido al final");
-    }
 
-    @GetMapping ("/reset")
-    public ResponseEntity<String> resetList() {
+    @GetMapping(path = "/lightUpMiddleLeds")
+    public ResponseEntity<ResponseDTO> lightUpMiddleLeds() {
+
+        listDEService.getLeds().lightUpMiddleLeds();
+
+        return new ResponseEntity<>(new ResponseDTO(
+                200, "se encendieron las luces empezando por la mitad", null), HttpStatus.OK);
+    }
+    @GetMapping(path = "/resetList")
+    public ResponseEntity<ResponseDTO> resetList(){
         listDEService.getLeds().resetList();
-        return ResponseEntity.ok("Lista reseteada");
-    }
-
-    @GetMapping("/lightup")
-    public ResponseEntity<String> lightUpMiddleLeds() {
-        try {
-            listDEService.getLeds().lightUpMiddleLeds();
-            return ResponseEntity.ok("Los leds se prendieron");
-        } catch (InterruptedException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error al encender los LED");
-        }
+        return new ResponseEntity<>(new ResponseDTO(200, "la bombillas reiniciaron su estado", null), HttpStatus.OK);
     }
 }
+

@@ -7,7 +7,7 @@ import lombok.Data;
 @AllArgsConstructor
 
 public class LedDTO {
-        private String identification;
+        private int identification;
 
     }
 
